@@ -11,7 +11,7 @@ using namespace std;
 int main()
 {
     srand(static_cast<unsigned int>(time(NULL)));
-	sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML works!");
+	sf::RenderWindow window(sf::VideoMode(1920, 1080), "C!rcles");
     /*Circle c(&window, 100.0f,1.0f);
     Coin coin(&window,"resources/coin.png");
     vector<Coin*> coins;
@@ -33,6 +33,16 @@ int main()
     gs.addNewCoin(5);
     sf::Clock clock;
     sf::Clock gameTime;
+
+    char menu='\0';
+    while (menu != 'o' || menu != 'c' || menu != 's') {
+        cout << "Type \'o\'< if you want offline, or \'m\' if you want multiplayer" << endl;
+        cin >> menu;
+        if (menu = 'm') {
+            cout << "Type \'s\'< if you want to be a server, or \'c\' if you want to be a client" << endl;
+            cin >> menu;
+        }
+    }
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -44,8 +54,11 @@ int main()
 		}
         window.clear();
         if (!gs.getEndGame()) {
-            float time = clock.restart().asMilliseconds();
+            float time = clock.restart().asMicroseconds();
             if (window.hasFocus()) {
+                if (time <= 1.f) {
+                    time = 0.2f;
+                }
                 gs.update(time);
                 gs.draw();
             }

@@ -28,6 +28,8 @@ public:
     
     bool getEndGame()const;
     
+    void setUpNetwork();
+
     void update(float);
 
     ~GameScenario();

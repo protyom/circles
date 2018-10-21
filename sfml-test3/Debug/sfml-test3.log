@@ -1,4 +1,14 @@
-﻿  Circle.cpp
-c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\sfml-test3\circle.cpp(132): warning C4305: -=: усечение из "double" в "float"
-  sfml-test3.vcxproj -> C:\Users\protyom\Documents\Visual Studio 2017\Projects\sfml\sfml-test3\Debug\sfml-test3.exe
-  sfml-test3.vcxproj -> C:\Users\protyom\Documents\Visual Studio 2017\Projects\sfml\sfml-test3\Debug\sfml-test3.pdb (Partial PDB)
+﻿  GameScenario.cpp
+c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(42): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(51): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(55): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(68): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(71): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(77): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(121): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(124): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(125): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(132): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(133): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(144): warning C4018: <: несоответствие типов со знаком и без знака
+  sfml-test3.vcxproj -> C:\Users\Артем\Documents\GitHub\circles\Debug\sfml-test3.exe

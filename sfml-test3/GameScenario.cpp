@@ -57,6 +57,7 @@ void GameScenario::draw() {
     }
 
     gameBounds_.draw();
+
 }
 
 bool GameScenario::getEndGame() const {
@@ -135,7 +136,7 @@ void GameScenario::update(float time) {
             }
             if (distanceFromTo(circles_[i]->getPosition(), circles_[j]->getPosition())<circles_[i]->getRad()+ circles_[j]->getRad()) {
                 circles_[i]->injure();
-                circles_[i]->injure();
+                circles_[j]->injure();
             }
         }
     }
@@ -145,10 +146,14 @@ void GameScenario::update(float time) {
             lost++;
         }
     }
-    if (lost == circles_.size()-1) {
+    if (lost == circles_.size()-1 && circles_.size()>1 && circles_[0]->getPlayState()!=playState::lost) {
         cout << "Winner" << endl;
         endGame = true;
     }
+    if (circles_[0]->getPlayState() == playState::lost) {
+        cout << "Lost" << endl;
+        endGame = true;
+    }
     gameBounds_.update(time);
-    back_.draw();
+    back_.update(time);
 }

@@ -129,7 +129,7 @@ float Circle::getSpeed() const {
 }
 
 void Circle::injure() {
-    rad_ -= 0.1;
+    rad_ -= 0.05f;
     cs_.setRadius(rad_);
     if (rad_ > 100.0f) {
         setSpeed(baseSpeed_*baseRad_ / rad_);
@@ -148,7 +148,7 @@ void Circle::spawn() {
 
 void Circle::update(float time) {
     if (distanceFromTo(pos_, togo_) > 1.f) {
-        this->moveBy(normalize(togo_ - pos_)*speed_*time);
+        this->moveBy(normalize(togo_ - pos_)*speed_*time/1000.f);
     }
     else {
         setPosition(togo_);
@@ -171,15 +171,7 @@ void Circle::update(float time) {
             // this->moveBy(sf::Vector2f(0, -1.0f)*speed_*time);
             keyboardMove += sf::Vector2f(0, 1.0f);
         }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left) ||
-            sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up) ||
-            sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right) ||
-            sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-
-
-            togo_ += normalize(keyboardMove)*speed_*time;
-
-        }
+        togo_ += normalize(keyboardMove)*speed_*time / 1000.f;
         //system("cls");
         //cout << sf::Mouse::getPosition().x << " " << sf::Mouse::getPosition().y;
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
