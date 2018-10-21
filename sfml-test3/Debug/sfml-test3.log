@@ -1,0 +1,4 @@
+﻿  Circle.cpp
+c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\sfml-test3\circle.cpp(132): warning C4305: -=: усечение из "double" в "float"
+  sfml-test3.vcxproj -> C:\Users\protyom\Documents\Visual Studio 2017\Projects\sfml\sfml-test3\Debug\sfml-test3.exe
+  sfml-test3.vcxproj -> C:\Users\protyom\Documents\Visual Studio 2017\Projects\sfml\sfml-test3\Debug\sfml-test3.pdb (Partial PDB)
