@@ -1,14 +1,20 @@
 ﻿  GameScenario.cpp
-c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(42): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(51): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(55): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(68): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(71): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(77): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(121): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(124): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(125): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(132): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(133): warning C4018: <: несоответствие типов со знаком и без знака
-c:\users\артем\documents\github\circles\sfml-test3\gamescenario.cpp(144): warning C4018: <: несоответствие типов со знаком и без знака
-  sfml-test3.vcxproj -> C:\Users\Артем\Documents\GitHub\circles\Debug\sfml-test3.exe
+c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\circles\sfml-test3\gamescenario.cpp(43): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\circles\sfml-test3\gamescenario.cpp(52): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\circles\sfml-test3\gamescenario.cpp(56): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\circles\sfml-test3\gamescenario.cpp(90): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\circles\sfml-test3\gamescenario.cpp(105): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\circles\sfml-test3\gamescenario.cpp(108): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\circles\sfml-test3\gamescenario.cpp(111): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\circles\sfml-test3\gamescenario.cpp(118): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\circles\sfml-test3\gamescenario.cpp(121): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\circles\sfml-test3\gamescenario.cpp(124): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\circles\sfml-test3\gamescenario.cpp(140): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\circles\sfml-test3\gamescenario.cpp(184): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\circles\sfml-test3\gamescenario.cpp(187): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\circles\sfml-test3\gamescenario.cpp(188): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\circles\sfml-test3\gamescenario.cpp(195): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\circles\sfml-test3\gamescenario.cpp(196): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\protyom\documents\visual studio 2017\projects\sfml\sfml-test3\circles\sfml-test3\gamescenario.cpp(206): warning C4018: <: несоответствие типов со знаком и без знака
+  sfml-test3.vcxproj -> C:\Users\protyom\Documents\Visual Studio 2017\Projects\sfml\sfml-test3\circles\Debug\sfml-test3.exe
+  sfml-test3.vcxproj -> C:\Users\protyom\Documents\Visual Studio 2017\Projects\sfml\sfml-test3\circles\Debug\sfml-test3.pdb (Partial PDB)

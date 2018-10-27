@@ -71,6 +71,10 @@ void Circle::setPlayState(playState state) {
     state_ = state;
 }
 
+sf::Color Circle::getColor() const {
+    return cs_.getFillColor();
+}
+
 sf::Vector2f Circle::getToGoPont() const {
     return togo_;
 }
@@ -129,7 +133,7 @@ float Circle::getSpeed() const {
 }
 
 void Circle::injure() {
-    rad_ -= 0.05f;
+    rad_ -= 0.5f;
     cs_.setRadius(rad_);
     if (rad_ > 100.0f) {
         setSpeed(baseSpeed_*baseRad_ / rad_);

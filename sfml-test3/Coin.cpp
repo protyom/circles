@@ -108,15 +108,9 @@ void Coin::sleep() {
 void Coin::update(float time) {
     allTime_ += time;
     if (isActive_) {
-        if ((callNumbers_ % 200) == 0) {
-            if (pictRect_.left == 1000) {
-                pictRect_.left = 0;
-            } else {
-                pictRect_.left += 200;
-            }
-        }
 
-        coinSprite_.setTextureRect(pictRect_);
+        updateAnimation(time);
+
         callNumbers_++;
     }
     else {
@@ -124,6 +118,19 @@ void Coin::update(float time) {
         if (sleepTime_ > 3000000.f) {
             this->spawn();
         }
+    }
+}
+
+void Coin::updateAnimation(float time) {
+    if (isActive_) {
+        if ((callNumbers_ % 25) == 0) {
+            if (pictRect_.left == 1000) {
+                pictRect_.left = 0;
+            } else {
+                pictRect_.left += 200;
+            }
+        }
+        coinSprite_.setTextureRect(pictRect_);
     }
 }
 

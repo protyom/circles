@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Network.hpp>
 #include <vector>
 #include "Circle.h"
 #include "Coin.h"
@@ -25,6 +26,7 @@ int main()
     coin.spawn();
     coin.setPosition(sf::Vector2f(960,540));*/
 
+
     GameScenario gs(&window, "resources/coin.png", "resources/bounds.png", "resources/space.png");
 
 
@@ -35,11 +37,11 @@ int main()
     sf::Clock gameTime;
 
     char menu='\0';
-    while (menu != 'o' || menu != 'c' || menu != 's') {
-        cout << "Type \'o\'< if you want offline, or \'m\' if you want multiplayer" << endl;
+    while (menu != 'o' && menu != 'c' && menu != 's') {
+        cout << "Type \'o\', if you want offline, or \'m\' if you want multiplayer" << endl;
         cin >> menu;
-        if (menu = 'm') {
-            cout << "Type \'s\'< if you want to be a server, or \'c\' if you want to be a client" << endl;
+        if (menu == 'm') {
+            cout << "Type \'s\', if you want to be a server, or \'c\' if you want to be a client" << endl;
             cin >> menu;
         }
     }
@@ -54,14 +56,16 @@ int main()
 		}
         window.clear();
         if (!gs.getEndGame()) {
-            float time = clock.restart().asMicroseconds();
-            if (window.hasFocus()) {
+            float time;
+            while ((time = static_cast<float>(clock.getElapsedTime().asMicroseconds())) == 0.f) {}
+            clock.restart();
+           // if (window.hasFocus()) {
                 if (time <= 1.f) {
                     time = 0.2f;
                 }
                 gs.update(time);
                 gs.draw();
-            }
+            //}
         }
 		window.display();
 	}

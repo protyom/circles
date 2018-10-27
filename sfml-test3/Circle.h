@@ -31,6 +31,8 @@ public:
     void catchCoin();
     void draw();
 
+
+    sf::Color getColor()const;
     sf::Vector2f getToGoPont()const;
     sf::Vector2f getPosition()const;
     bool getPlayable()const;

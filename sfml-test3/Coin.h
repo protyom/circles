@@ -43,6 +43,7 @@ public:
     void spawn();
 
     void update(float time);
+    void updateAnimation(float time);
     ~Coin();
 };
 
