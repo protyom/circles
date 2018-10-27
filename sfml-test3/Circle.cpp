@@ -119,6 +119,7 @@ void Circle::setPosition(const sf::Vector2f &pos) {
 
 void Circle::setRad(const float rad) {
     rad_ = rad;
+    cs_.setRadius(rad_);
 }
 
 void Circle::setSpeed(float speed) {
@@ -163,7 +164,7 @@ void Circle::spawn() {
 }
 
 void Circle::update(float time) {
-    if (distanceFromTo(pos_, togo_) > 1.f) {
+    if (distanceFromTo(pos_, togo_) > 3.f) {
         this->moveBy(normalize(togo_ - pos_)*speed_*time/1000.f);
     }
     else {

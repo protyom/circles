@@ -87,6 +87,7 @@ void GameScenario::setUpNetwork(NetworkType newNetType) {
         }
         addNewPlayable(100.0f, 1.0f);
         addNewCircle(sockets_.size(), 100.0f, 1.0f);
+        addNewCoin(5);
         for (int i = 0; i < sockets_.size(); i++) {
             packet.clear();
             packet << circles_.size() << i+1;
@@ -332,19 +333,23 @@ void GameScenario::updateForClient(float time) {
         }
     }
     for (int i = 0; i < coins_.size(); i++) {
-        coins_[i]->update(time);
+        coins_[i]->updateAnimation(time);
     }
     int lost = 0;
+    bool isLost = false;
     for (int i = 0; i < circles_.size(); i++) {
         if (circles_[i]->getPlayState() == playState::lost) {
             lost++;
+            if (circles_[i]->isPlayable()) {
+                isLost = true;
+            }
         }
     }
-    if (lost == circles_.size() - 1 && circles_.size()>1 && circles_[0]->getPlayState() != playState::lost) {
+    if (lost == circles_.size() - 1 && circles_.size()>1 && !isLost) {
         cout << "Winner" << endl;
         endGame = true;
     }
-    if (circles_[0]->getPlayState() == playState::lost) {
+    if (isLost) {
         cout << "Lost" << endl;
         endGame = true;
     }
