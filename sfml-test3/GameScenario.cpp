@@ -89,12 +89,23 @@ void GameScenario::setUpNetwork(NetworkType newNetType) {
         addNewCircle(sockets_.size(), 100.0f, 1.0f);
         for (int i = 0; i < sockets_.size(); i++) {
 
+            packet << circles_.size() << i;
+            sockets_[i]->send(packet);
             for (int j = 0; j < circles_.size(); j++){
                 packet.clear();
-                sf::Color cl(circles_[i]->getColor());
+                sf::Color cl(circles_[j]->getColor());
                 packet << cl.r << cl.g << cl.b << cl.a;
-                sf::Vector2f pos=circles_[i]->getPosition();
-                packet<<pos.x<<pos.y
+                sf::Vector2f pos=circles_[j]->getPosition();
+                packet << pos.x << pos.y<< circles_[j]->getRad();
+                sockets_[i]->send(packet);
+            }
+            packet << coins_.size() << i;
+            sockets_[i]->send(packet);
+            for (int j = 0; j < coins_.size(); j++) {
+                packet.clear();
+                sf::Vector2f pos = coins_[j]->getPosition();
+                packet << pos.x << pos.y;
+                sockets_[i]->send(packet);
             }
         }
 
@@ -102,8 +113,52 @@ void GameScenario::setUpNetwork(NetworkType newNetType) {
         cout << "Enter server\'s IP adress" << endl;
         sf::IpAddress serverIp;
         cin >> serverIp;
-        mainSocket_.connect(serverIp, 2000);
+        if (mainSocket_.connect(serverIp, 2000) != sf::Socket::Done) {
+            cout << "Wrong ip" << endl;
+            return;
+        }
         sf::Packet packet;
+        mainSocket_.receive(packet);
+        int circles_num=0;
+        packet << circles_num;
+        addNewCircle(circles_num, 100.0f, 1.0f);
+        int playable_num=0;
+        packet << playable_num;
+        circles_[playable_num]->setPlayable(true);
+        for (int i = 0; i < circles_.size(); i++) {
+            mainSocket_.receive(packet);
+
+            sf::Uint8 r;
+            sf::Uint8 g;
+            sf::Uint8 b;
+            sf::Uint8 a;
+
+            packet >> r >> g >> b >> a;
+            circles_[i]->setColor(sf::Color(r, g, b, a));
+            
+
+            float x;
+            float y;
+            packet >> x >> y;
+            circles_[i]->attachTo(sf::Vector2f(x, y));
+
+
+        }
+        int coins_num;
+        mainSocket_.receive(packet);
+        packet >> coins_num;
+        addNewCoin(coins_num);
+        for (size_t i = 0; i < coins_.size(); i++) {
+            mainSocket_.receive(packet);
+
+            float x;
+            float y;
+            packet >> x >> y;
+            coins_[i]->setPosition(sf::Vector2f(x, y));
+
+
+        }
+
     }
 
 }
@@ -229,9 +284,186 @@ void GameScenario::updateForOffline(float time) {
 
 void GameScenario::updateForClient(float time) {
     sf::Packet packet;
-    mainSocket_.receive(packet);
+    sf::Vector2f pos;
+    for (int i = 0; i < circles_.size(); i++) {
+        circles_[i]->update(time);
+        if (circles_[i]->isPlayable()) {
+            pos = circles_[i]->getPosition();
+        }
+    }
+    for (int i = 0; i < coins_.size(); i++) {
+        coins_[i]->update(time);
+    }
+    int lost = 0;
+    for (int i = 0; i < circles_.size(); i++) {
+        if (circles_[i]->getPlayState() == playState::lost) {
+            lost++;
+        }
+    }
+    if (lost == circles_.size() - 1 && circles_.size()>1 && circles_[0]->getPlayState() != playState::lost) {
+        cout << "Winner" << endl;
+        endGame = true;
+    }
+    if (circles_[0]->getPlayState() == playState::lost) {
+        cout << "Lost" << endl;
+        endGame = true;
+    }
+    gameBounds_.update(time);
+    back_.update(time);
     
+    packet.clear();
+    packet << pos.x << pos.y;
+    mainSocket_.send(packet);
+
+    for (size_t i = 0; i < circles_.size(); i++) {
+
+
+        float x;
+        float y;
+        float rad;
+        float speed;
+        int ps;
+        mainSocket_.receive(packet);
+        packet >> x >> y >> rad >> speed >> ps;
+        circles_[i]->setPosition(sf::Vector2f(x, y));
+        circles_[i]->setRad(rad);
+        circles_[i]->setSpeed(speed);
+        circles_[i]->setPlayState(static_cast<playState>(ps));
+
+    }
+
+    for (size_t i = 0; i < coins_.size(); i++) {
+        float x;
+        float y;
+        bool visible;
+        bool active;
+        mainSocket_.receive(packet);
+
+        packet >> x >> y >> visible >> active;
+
+        coins_[i]->setPosition(sf::Vector2f(x, y));
+        coins_[i]->setVisible(visible);
+        coins_[i]->setActive(active);
+
+    }
 }
 
 void GameScenario::updateForServer(float time) {
+    sf::Packet packet;
+    for (int i = 0; i < circles_.size(); i++) {
+        circles_[i]->update(time);
+        char out = gameBounds_.isOut(circles_[i]->getPosition(), circles_[i]->getRad());
+        if (out != 'i') {
+            sf::Vector2f newPosition = circles_[i]->getPosition();
+            if (out == 'l') {
+                newPosition.x += 1.f;
+                circles_[i]->setPosition(newPosition);
+                circles_[i]->setToGoPoint(newPosition);
+            }
+            if (out == 'r') {
+                newPosition.x -= 1.f;
+                circles_[i]->setPosition(newPosition);
+                circles_[i]->setToGoPoint(newPosition);
+            }
+            if (out == 'u') {
+                newPosition.y += 1.f;
+                circles_[i]->setPosition(newPosition);
+                circles_[i]->setToGoPoint(newPosition);
+            }
+            if (out == 'l') {
+                newPosition.y -= 1.f;
+                circles_[i]->setPosition(newPosition);
+                circles_[i]->setToGoPoint(newPosition);
+            }
+        }
+        if (circles_[i]->isPlayable()) {
+            sf::Vector2f playerPos = circles_[i]->getPosition();
+            if (playerPos.x < 960.f) {
+                playerPos.x = 960.f;
+            }
+            if (playerPos.x > gameBounds_.getWidth() - 960.f) {
+                playerPos.x = gameBounds_.getWidth() - 960.f;
+            }
+            if (playerPos.y < 540.f) {
+                playerPos.y = 540.f;
+            }
+            if (playerPos.y > gameBounds_.getHeight() - 540.f) {
+                playerPos.y = gameBounds_.getHeight() - 540.f;
+            }
+            view.setCenter(playerPos);
+            window_->setView(view);
+        }
+        
+
+    }
+
+
+    for (int i = 0; i < coins_.size(); i++) {
+        coins_[i]->update(time);
+    }
+    for (int i = 0; i < circles_.size(); i++) {
+        for (int j = 0; j < coins_.size(); j++) {
+            if (circles_[i]->isInside(coins_[j]->getPosition()) && coins_[j]->isActive() && circles_[i]->getRad()<MAX_RAD) {
+                circles_[i]->catchCoin();
+                coins_[j]->sleep();
+            }
+        }
+    }
+    for (int i = 0; i < circles_.size(); i++) {
+        for (int j = 0; j < circles_.size(); j++) {
+            if (i == j) {
+                continue;
+            }
+            if (distanceFromTo(circles_[i]->getPosition(), circles_[j]->getPosition())<circles_[i]->getRad() + circles_[j]->getRad()) {
+                circles_[i]->injure();
+            }
+        }
+    }
+    int lost = 0;
+    for (int i = 0; i < circles_.size(); i++) {
+        if (circles_[i]->getPlayState() == playState::lost) {
+            lost++;
+        }
+    }
+    if (lost == circles_.size() - 1 && circles_.size()>1 && circles_[0]->getPlayState() != playState::lost) {
+        cout << "Winner" << endl;
+        endGame = true;
+    }
+    if (circles_[0]->getPlayState() == playState::lost) {
+        cout << "Lost" << endl;
+        endGame = true;
+    }
+    gameBounds_.update(time);
+    back_.update(time);
+
+    for (int i = 0; i < sockets_.size(); i++) {
+
+        sockets_[i]->receive(packet);
+        float x;
+        float y;
+        packet >> x >> y;
+        circles_[i+1]->attachTo(sf::Vector2f(x, y));
+
+        for (size_t j = 0; j < circles_.size(); j++) {
+            packet.clear();
+            sf::Vector2f pos = circles_[j]->getPosition();
+            float rad = circles_[j]->getRad();
+            float speed = circles_[j]->getSpeed();
+            playState ps = circles_[j]->getPlayState();
+            packet << pos.x << pos.y << rad << speed << static_cast<int>(ps);
+            sockets_[i]->send(packet);
+
+        }
+
+        for (size_t j = 0; j < coins_.size(); j++) {
+            packet.clear();
+            sf::Vector2f pos = coins_[j]->getPosition();
+            bool visible = coins_[j]->isVisible();
+            bool active = coins_[j]->isActive();
+            packet << pos.x << pos.y << visible << active;
+            sockets_[i]->send(packet);
+
+        }
+
+    }
 }

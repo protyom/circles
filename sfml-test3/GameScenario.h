@@ -26,7 +26,7 @@ private:
 
     NetworkType netType_;
     sf::TcpSocket mainSocket_;
-    vector< sf::Socket*> sockets_;
+    vector<  sf::TcpSocket* >  sockets_;
     int numberOfPlayers;
 
     const float MAX_RAD = 500.f;

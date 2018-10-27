@@ -11,30 +11,7 @@ using namespace std;
 
 int main()
 {
-    srand(static_cast<unsigned int>(time(NULL)));
-	sf::RenderWindow window(sf::VideoMode(1920, 1080), "C!rcles");
-    /*Circle c(&window, 100.0f,1.0f);
-    Coin coin(&window,"resources/coin.png");
-    vector<Coin*> coins;
-    coins.push_back(&coin);
-    vector<Circle*> circles;
-    circles.push_back(&c);
 
-    CoinTracker ct(&circles,&coins);
-
-
-    coin.spawn();
-    coin.setPosition(sf::Vector2f(960,540));*/
-
-
-    GameScenario gs(&window, "resources/coin.png", "resources/bounds.png", "resources/space.png");
-
-
-    gs.addNewPlayable(100.0f,1.0f);
-    gs.addNewCircle(1, 100.0f, 1.0f);
-    gs.addNewCoin(5);
-    sf::Clock clock;
-    sf::Clock gameTime;
 
     char menu='\0';
     while (menu != 'o' && menu != 'c' && menu != 's') {
@@ -45,6 +22,29 @@ int main()
             cin >> menu;
         }
     }
+
+
+    srand(static_cast<unsigned int>(time(NULL)));
+    sf::RenderWindow window(sf::VideoMode(1920, 1080), "C!rcles");
+
+
+    GameScenario gs(&window, "resources/coin.png", "resources/bounds.png", "resources/space.png");
+
+    switch (menu) {
+    case('o'):
+        gs.addNewPlayable(100.0f, 1.0f);
+        gs.addNewCircle(1, 100.0f, 1.0f);
+        gs.addNewCoin(5);
+        break;
+    case('s'):
+        gs.setUpNetwork(NetworkType::SERVER);
+        break;
+    case('c'):
+        gs.setUpNetwork(NetworkType::CLIENT);
+        break;
+    }
+    sf::Clock clock;
+    sf::Clock gameTime;
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -59,13 +59,13 @@ int main()
             float time;
             while ((time = static_cast<float>(clock.getElapsedTime().asMicroseconds())) == 0.f) {}
             clock.restart();
-           // if (window.hasFocus()) {
+            if (window.hasFocus()) {
                 if (time <= 1.f) {
                     time = 0.2f;
                 }
                 gs.update(time);
                 gs.draw();
-            //}
+            }
         }
 		window.display();
 	}

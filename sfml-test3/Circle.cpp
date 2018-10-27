@@ -58,6 +58,10 @@ void Circle::setToGoPoint(const sf::Vector2f & togo) {
     togo_ = togo;
 }
 
+void Circle::setColor(const sf::Color& color) {
+    cs_.setFillColor(color);
+}
+
 void Circle::setMaxSpawnVect(const sf::Vector2f& vect) {
     maxSpawnX_ = vect.x;
     maxSpawnY_ = vect.y;
@@ -95,6 +99,11 @@ bool Circle::isInside(const sf::Vector2f& vect)const {
         return false;
 }
 
+void Circle::attachTo(const sf::Vector2f& pos) {
+    setToGoPoint(pos);
+    setPosition(pos);
+}
+
 void Circle::catchCoin() {
     rad_ = rad_ + rad_ / 20;
     cs_.setRadius(rad_);
@@ -106,6 +115,10 @@ void Circle::catchCoin() {
 void Circle::setPosition(const sf::Vector2f &pos) {
     pos_ = pos;
     cs_.setPosition(sf::Vector2f(pos.x - rad_, pos.y - rad_));
+}
+
+void Circle::setRad(const float rad) {
+    rad_ = rad;
 }
 
 void Circle::setSpeed(float speed) {
@@ -133,7 +146,7 @@ float Circle::getSpeed() const {
 }
 
 void Circle::injure() {
-    rad_ -= 0.5f;
+    rad_ -= 0.01f;
     cs_.setRadius(rad_);
     if (rad_ > 100.0f) {
         setSpeed(baseSpeed_*baseRad_ / rad_);
@@ -146,8 +159,7 @@ void Circle::injure() {
 void Circle::spawn() {
     sf::Vector2f newPos = sf::Vector2f(static_cast<float>(60 + rand() % (static_cast<int>(maxSpawnX_ - 120))),
         static_cast<float>(60 + rand() % (static_cast<int>(maxSpawnY_ - 120))));
-    setPosition(newPos);
-    setToGoPoint(newPos);
+    attachTo(newPos);
 }
 
 void Circle::update(float time) {

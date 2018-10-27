@@ -28,6 +28,10 @@ private:
 public:
     Circle(sf::RenderWindow*,const float&, const float&);
     Circle(const Circle&);
+
+
+    void attachTo(const sf::Vector2f&);
+
     void catchCoin();
     void draw();
 
@@ -46,10 +50,12 @@ public:
     bool isPlayable()const;
     void moveBy(const sf::Vector2f&);
 
+    void setColor(const sf::Color&);
     void setMaxSpawnVect(const sf::Vector2f&);
     void setPlayable(bool);
     void setPlayState(playState state);
     void setPosition(const sf::Vector2f&);
+    void setRad(const float rad);
     void setSpeed(float speed);
     void setToGoPoint(const sf::Vector2f&);
     
