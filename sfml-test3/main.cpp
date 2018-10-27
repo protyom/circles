@@ -59,13 +59,13 @@ int main()
             float time;
             while ((time = static_cast<float>(clock.getElapsedTime().asMicroseconds())) == 0.f) {}
             clock.restart();
-            if (window.hasFocus()) {
+            //if (window.hasFocus()) {
                 if (time <= 1.f) {
                     time = 0.2f;
                 }
                 gs.update(time);
                 gs.draw();
-            }
+            //}
         }
 		window.display();
 	}

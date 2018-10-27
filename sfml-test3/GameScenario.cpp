@@ -88,8 +88,8 @@ void GameScenario::setUpNetwork(NetworkType newNetType) {
         addNewPlayable(100.0f, 1.0f);
         addNewCircle(sockets_.size(), 100.0f, 1.0f);
         for (int i = 0; i < sockets_.size(); i++) {
-
-            packet << circles_.size() << i;
+            packet.clear();
+            packet << circles_.size() << i+1;
             sockets_[i]->send(packet);
             for (int j = 0; j < circles_.size(); j++){
                 packet.clear();
@@ -99,6 +99,7 @@ void GameScenario::setUpNetwork(NetworkType newNetType) {
                 packet << pos.x << pos.y<< circles_[j]->getRad();
                 sockets_[i]->send(packet);
             }
+            packet.clear();
             packet << coins_.size() << i;
             sockets_[i]->send(packet);
             for (int j = 0; j < coins_.size(); j++) {
@@ -120,10 +121,10 @@ void GameScenario::setUpNetwork(NetworkType newNetType) {
         sf::Packet packet;
         mainSocket_.receive(packet);
         int circles_num=0;
-        packet << circles_num;
+        packet >> circles_num;
         addNewCircle(circles_num, 100.0f, 1.0f);
         int playable_num=0;
-        packet << playable_num;
+        packet >> playable_num;
         circles_[playable_num]->setPlayable(true);
         for (int i = 0; i < circles_.size(); i++) {
             mainSocket_.receive(packet);
