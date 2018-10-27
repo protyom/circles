@@ -290,6 +290,21 @@ void GameScenario::updateForClient(float time) {
         circles_[i]->update(time);
         if (circles_[i]->isPlayable()) {
             pos = circles_[i]->getPosition();
+            sf::Vector2f playerPos = circles_[i]->getPosition();
+            if (playerPos.x < 960.f) {
+                playerPos.x = 960.f;
+            }
+            if (playerPos.x > gameBounds_.getWidth() - 960.f) {
+                playerPos.x = gameBounds_.getWidth() - 960.f;
+            }
+            if (playerPos.y < 540.f) {
+                playerPos.y = 540.f;
+            }
+            if (playerPos.y > gameBounds_.getHeight() - 540.f) {
+                playerPos.y = gameBounds_.getHeight() - 540.f;
+            }
+            view.setCenter(playerPos);
+            window_->setView(view);
         }
     }
     for (int i = 0; i < coins_.size(); i++) {
