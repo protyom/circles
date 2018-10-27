@@ -289,6 +289,30 @@ void GameScenario::updateForClient(float time) {
     for (int i = 0; i < circles_.size(); i++) {
         circles_[i]->update(time);
         if (circles_[i]->isPlayable()) {
+            char out = gameBounds_.isOut(circles_[i]->getPosition(), circles_[i]->getRad());
+            if (out != 'i') {
+                sf::Vector2f newPosition = circles_[i]->getPosition();
+                if (out == 'l') {
+                    newPosition.x += 1.f;
+                    circles_[i]->setPosition(newPosition);
+                    circles_[i]->setToGoPoint(newPosition);
+                }
+                if (out == 'r') {
+                    newPosition.x -= 1.f;
+                    circles_[i]->setPosition(newPosition);
+                    circles_[i]->setToGoPoint(newPosition);
+                }
+                if (out == 'u') {
+                    newPosition.y += 1.f;
+                    circles_[i]->setPosition(newPosition);
+                    circles_[i]->setToGoPoint(newPosition);
+                }
+                if (out == 'l') {
+                    newPosition.y -= 1.f;
+                    circles_[i]->setPosition(newPosition);
+                    circles_[i]->setToGoPoint(newPosition);
+                }
+            }
             pos = circles_[i]->getPosition();
             sf::Vector2f playerPos = circles_[i]->getPosition();
             if (playerPos.x < 960.f) {
