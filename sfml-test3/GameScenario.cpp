@@ -2,16 +2,16 @@
 
 
 
-
-
 GameScenario::GameScenario(sf::RenderWindow* window, const string &coinFilename, const string &boundsFilename, const string &backFilename) :
     GameObject(window), coinFilename_(coinFilename),
     gameBounds_(window, boundsFilename,
         static_cast<float>(2 * window->getSize().x), static_cast<float>(2 * window->getSize().y)),
     back_(window, backFilename,
-        static_cast<float>(2 * window->getSize().x), static_cast<float>(2 * window->getSize().y)) {
+        static_cast<float>(2 * window->getSize().x), static_cast<float>(2 * window->getSize().y)),
+        gui_(*window){
     view.reset(sf::FloatRect(0, 0, static_cast<float>(window->getSize().x), static_cast<float>(window->getSize().y)));
     endGame = false;
+    isMenu_ = false;
     netType_ = NetworkType::OFFLINE;
 }
 
@@ -49,29 +49,263 @@ void GameScenario::addNewCoin(const int& num = 1) {
 
 void GameScenario::draw() {
     back_.draw();
-    for (int i = 0; i < coins_.size(); i++) {
-        coins_[i]->draw();
+    if (!isMenu_) {
+        for (int i = 0; i < coins_.size(); i++) {
+            coins_[i]->draw();
+        }
+
+        for (int i = 0; i < circles_.size(); i++) {
+            circles_[i]->draw();
+        }
+
+        gameBounds_.draw();
+    } else {
+        gui_.draw();
     }
-
-    for (int i = 0; i < circles_.size(); i++) {
-        circles_[i]->draw();
-    }
-
-    gameBounds_.draw();
-
 }
 
 bool GameScenario::getEndGame() const {
     return endGame;
 }
 
+void GameScenario::handleEvent(sf::Event& event) {
+    gui_.handleEvent(event);
+}
+
+void GameScenario::handleMenu(tgui::Button::Ptr but) {
+    sf::String name(but->getText());
+    if (name == "Offline") {
+        this->addNewPlayable(100.0f, 1.0f);
+        this->addNewCircle(1, 100.0f, 1.0f);
+        this->addNewCoin(5);
+        this->removeMenu();
+    } else if (name == "Multiplayer") {
+        this->removeMenu();
+        this->loadMultiplayerMenu();
+    } else if (name == "Back") {
+        this->removeMenu();
+        this->loadMainMenu();
+    } else if (name == "Client") {
+        this->removeMenu();
+        this->loadClientMenu();
+    } else if (name == "Server") {
+        this->removeMenu();
+        this->loadServerMenu();
+    }
+}
+
+void GameScenario::handleClientMenu(tgui::Button::Ptr but,tgui::Label::Ptr label,tgui::EditBox::Ptr editBox) {
+    sf::String str(but->getText());
+    if (str == "Back") {
+        this->removeMenu();
+        this->loadMultiplayerMenu();
+    } else {
+        sf::IpAddress serverIp(editBox->getText());
+        if (mainSocket_.connect(serverIp, 2000) != sf::Socket::Done) {
+            label->setText("Wrong IP.Reconnect");
+            return;
+        }
+        label->setText(sf::String("Connected to ")+ editBox->getText());
+        setUpNetwork(NetworkType::CLIENT);
+    }
+}
+
+void GameScenario::handleServerMenu(tgui::Button::Ptr but, tgui::Label::Ptr label) {
+    sf::String str(but->getText());
+    if (str == "Back") {
+        this->removeMenu();
+        this->loadMultiplayerMenu();
+    } else if(str == "Search"){
+        listener.listen(2000);
+        sf::TcpSocket* client = new sf::TcpSocket();
+        sockets_.push_back(client);
+        listener.accept(*client);
+        label->setText(sf::String(sockets_.size()) + sf::String(" users connected"));
+    } else if (str == "Play!") {
+        setUpNetwork(NetworkType::SERVER);
+    }
+}
+
+void GameScenario::loadClientMenu() {
+    isMenu_ = true;
+    auto label = tgui::Label::create("Enter IP-Adress");
+    label->setSize({ "66.67%", "12.5%" });
+    label->setPosition({ "16.67%", "10%" });
+    label->setTextSize(40);
+    label->getRenderer()->setFont("resources/PlayfairDisplay-Regular.ttf");
+    label->getRenderer()->setTextColor(tgui::Color(255, 255, 255, 255));
+    label->getRenderer()->setBackgroundColor(tgui::Color(21, 21, 21, 255));
+    gui_.add(label);
+
+    auto editBoxIp = tgui::EditBox::create();
+    editBoxIp->setSize({ "66.67%", "12.5%" });
+    editBoxIp->setPosition({ "16.67%", "25%" });
+    editBoxIp->setDefaultText("IP Address");
+    editBoxIp->getRenderer()->setFont("resources/PlayfairDisplay-Regular.ttf");
+    editBoxIp->getRenderer()->setTextColor(tgui::Color(255, 255, 255, 255));
+    editBoxIp->getRenderer()->setBackgroundColor(tgui::Color(21, 21, 21, 255));
+    editBoxIp->setTextSize(40);
+    gui_.add(editBoxIp);
+    
+    auto button2 = tgui::Button::create("Connect");
+    button2->setSize({ "10%", "6%" });
+    button2->setPosition({ "16.67%", "40%" });
+    button2->getRenderer()->setFont("resources/PlayfairDisplay-Regular.ttf");
+    button2->getRenderer()->setTextColor(tgui::Color(255, 255, 255, 255));
+    button2->getRenderer()->setBackgroundColor(tgui::Color(21, 21, 21, 255));
+    button2->getRenderer()->setBackgroundColorHover(tgui::Color(255, 255, 255, 255));
+    button2->getRenderer()->setTextColorHover(tgui::Color(0, 0, 0, 255));
+    button2->setTextSize(24);
+    gui_.add(button2);
+
+    auto button3 = tgui::Button::create("Back");
+    button3->setSize({ "16.67%", "10%" });
+    button3->setPosition({ "16.67%", "60%" });
+    button3->getRenderer()->setFont("resources/PlayfairDisplay-Regular.ttf");
+    button3->getRenderer()->setTextColor(tgui::Color(255, 255, 255, 255));
+    button3->getRenderer()->setBackgroundColor(tgui::Color(21, 21, 21, 255));
+    button3->getRenderer()->setBackgroundColorHover(tgui::Color(255, 255, 255, 255));
+    button3->getRenderer()->setTextColorHover(tgui::Color(0, 0, 0, 255));
+    button3->setTextSize(40);
+    gui_.add(button3);
+
+    button2->connect("pressed", &GameScenario::handleClientMenu, this, button2, label, editBoxIp);
+    button3->connect("pressed", &GameScenario::handleClientMenu, this, button3, label, editBoxIp);
+}
+
+void GameScenario::loadMainMenu() {
+    isMenu_ = true;
+    auto button1 = tgui::Button::create("Offline");
+    button1->setSize({ "16.67%", "10%"  });
+    button1->setPosition({ "10%", "20%" });
+    button1->getRenderer()->setFont("resources/PlayfairDisplay-Regular.ttf");
+    button1->getRenderer()->setTextColor(tgui::Color(255, 255, 255, 255));
+    button1->getRenderer()->setBackgroundColor(tgui::Color(21, 21, 21, 255));
+    button1->getRenderer()->setBackgroundColorHover(tgui::Color(255, 255, 255, 255));
+    button1->getRenderer()->setTextColorHover(tgui::Color(0, 0, 0, 255));
+    button1->setTextSize(40);
+    gui_.add(button1);
+
+    auto button2 = tgui::Button::create("Multiplayer");
+    button2->setSize({ "16.67%", "10%" });
+    button2->setPosition({ "10%", "40%" });
+    button2->getRenderer()->setFont("resources/PlayfairDisplay-Regular.ttf");
+    button2->getRenderer()->setTextColor(tgui::Color(255, 255, 255, 255));
+    button2->getRenderer()->setBackgroundColor(tgui::Color(21, 21, 21, 255));
+    button2->getRenderer()->setBackgroundColorHover(tgui::Color(255, 255, 255, 255));
+    button2->getRenderer()->setTextColorHover(tgui::Color(0, 0, 0, 255));
+    button2->setTextSize(40);
+    gui_.add(button2);
+
+    
+    button1->connect("pressed", &GameScenario::handleMenu, this, button1);
+    button2->connect("pressed", &GameScenario::handleMenu, this, button2);
+}
+
+void GameScenario::loadMultiplayerMenu() {
+    isMenu_ = true;
+    auto button1 = tgui::Button::create("Client");
+    button1->setSize({ "16.67%", "10%" });
+    button1->setPosition({ "10%", "20%" });
+    button1->getRenderer()->setFont("resources/PlayfairDisplay-Regular.ttf");
+    button1->getRenderer()->setTextColor(tgui::Color(255, 255, 255, 255));
+    button1->getRenderer()->setBackgroundColor(tgui::Color(21, 21, 21, 255));
+    button1->getRenderer()->setBackgroundColorHover(tgui::Color(255, 255, 255, 255));
+    button1->getRenderer()->setTextColorHover(tgui::Color(0, 0, 0, 255));
+    button1->setTextSize(40);
+    gui_.add(button1);
+
+    auto button2 = tgui::Button::create("Server");
+    button2->setSize({ "16.67%", "10%" });
+    button2->setPosition({ "10%", "40%" });
+    button2->getRenderer()->setFont("resources/PlayfairDisplay-Regular.ttf");
+    button2->getRenderer()->setTextColor(tgui::Color(255, 255, 255, 255));
+    button2->getRenderer()->setBackgroundColor(tgui::Color(21, 21, 21, 255));
+    button2->getRenderer()->setBackgroundColorHover(tgui::Color(255, 255, 255, 255));
+    button2->getRenderer()->setTextColorHover(tgui::Color(0, 0, 0, 255));
+    button2->setTextSize(40);
+    gui_.add(button2);
+
+    auto button3 = tgui::Button::create("Back");
+    button3->setSize({ "16.67%", "10%" });
+    button3->setPosition({ "10%", "60%" });
+    button3->getRenderer()->setFont("resources/PlayfairDisplay-Regular.ttf");
+    button3->getRenderer()->setTextColor(tgui::Color(255, 255, 255, 255));
+    button3->getRenderer()->setBackgroundColor(tgui::Color(21, 21, 21, 255));
+    button3->getRenderer()->setBackgroundColorHover(tgui::Color(255, 255, 255, 255));
+    button3->getRenderer()->setTextColorHover(tgui::Color(0, 0, 0, 255));
+    button3->setTextSize(40);
+    gui_.add(button3);
+
+
+    button1->connect("pressed", &GameScenario::handleMenu, this, button1);
+    button2->connect("pressed", &GameScenario::handleMenu, this, button2);
+    button3->connect("pressed", &GameScenario::handleMenu, this, button3);
+}
+
+void GameScenario::loadServerMenu() {
+    isMenu_ = true;
+    auto label = tgui::Label::create(sf::String("Search for clients.Your IP: ")+sf::IpAddress::getLocalAddress().toString());
+    label->setSize({ "66.67%", "12.5%" });
+    label->setPosition({ "16.67%", "10%" });
+    label->getRenderer()->setFont("resources/PlayfairDisplay-Regular.ttf");
+    label->getRenderer()->setTextColor(tgui::Color(255, 255, 255, 255));
+    label->getRenderer()->setBackgroundColor(tgui::Color(21, 21, 21, 255));
+    label->setTextSize(40);
+    gui_.add(label);
+
+    auto button2 = tgui::Button::create("Search");
+    button2->setSize({ "16.67%", "10%" });
+    button2->setPosition({ "16.67%", "40%" });
+    button2->getRenderer()->setFont("resources/PlayfairDisplay-Regular.ttf");
+    button2->getRenderer()->setTextColor(tgui::Color(255, 255, 255, 255));
+    button2->getRenderer()->setBackgroundColor(tgui::Color(21, 21, 21, 255));
+    button2->getRenderer()->setBackgroundColorHover(tgui::Color(255, 255, 255, 255));
+    button2->getRenderer()->setTextColorHover(tgui::Color(0, 0, 0, 255));
+    button2->setTextSize(40);
+    gui_.add(button2);
+
+    auto button4 = tgui::Button::create("Play!");
+    button4->setSize({ "16.67%", "10%" });
+    button4->setPosition({ "16.67%", "60%" });
+    button4->getRenderer()->setFont("resources/PlayfairDisplay-Regular.ttf");
+    button4->getRenderer()->setTextColor(tgui::Color(255, 255, 255, 255));
+    button4->getRenderer()->setBackgroundColor(tgui::Color(21, 21, 21, 255));
+    button4->getRenderer()->setBackgroundColorHover(tgui::Color(255, 255, 255, 255));
+    button4->getRenderer()->setTextColorHover(tgui::Color(0, 0, 0, 255));
+    button4->setTextSize(40);
+    gui_.add(button4);
+
+    auto button3 = tgui::Button::create("Back");
+    button3->setSize({ "16.67%", "10%" });
+    button3->setPosition({ "16.67%", "80%" });
+    button3->getRenderer()->setFont("resources/PlayfairDisplay-Regular.ttf");
+    button3->getRenderer()->setTextColor(tgui::Color(255, 255, 255, 255));
+    button3->getRenderer()->setBackgroundColor(tgui::Color(21, 21, 21, 255));
+    button3->getRenderer()->setBackgroundColorHover(tgui::Color(255, 255, 255, 255));
+    button3->getRenderer()->setTextColorHover(tgui::Color(0, 0, 0, 255));
+    button3->setTextSize(40);
+    gui_.add(button3);
+
+    button2->connect("pressed", &GameScenario::handleServerMenu, this, button2, label);
+    button3->connect("pressed", &GameScenario::handleServerMenu, this, button3, label);
+    button4->connect("pressed", &GameScenario::handleServerMenu, this, button3, label);
+}
+
+void GameScenario::removeMenu() {
+    gui_.removeAllWidgets();
+    isMenu_ = false;
+}
+
+
 void GameScenario::setUpNetwork(NetworkType newNetType) {
+    startNew();
     netType_ = newNetType;
     if (netType_ == NetworkType::SERVER) {
-        sf::TcpListener listener;
-        listener.listen(2000);
+        //sf::TcpListener listener;
+        //listener.listen(2000);
         sf::Packet packet;
-        cout << "Your IP adress is: " << sf::IpAddress::getLocalAddress() << endl;
+        /*cout << "Your IP adress is: " << sf::IpAddress::getLocalAddress() << endl;
         cout << "Waiting for clients" << endl;
         cout << "Press \'f\', if you are ready" << endl;
         char done = '\0';
@@ -84,7 +318,7 @@ void GameScenario::setUpNetwork(NetworkType newNetType) {
             cout << sockets_.size() << " users connected" << endl;
             cout << "Press \'f\', if you are ready" << endl;
             cin >> done;
-        }
+        }*/
         addNewPlayable(100.0f, 1.0f);
         addNewCircle(sockets_.size(), 100.0f, 1.0f);
         addNewCoin(5);
@@ -112,13 +346,6 @@ void GameScenario::setUpNetwork(NetworkType newNetType) {
         }
 
     } else if (netType_ = NetworkType::CLIENT) {
-        cout << "Enter server\'s IP adress" << endl;
-        sf::IpAddress serverIp;
-        cin >> serverIp;
-        if (mainSocket_.connect(serverIp, 2000) != sf::Socket::Done) {
-            cout << "Wrong ip" << endl;
-            return;
-        }
         sf::Packet packet;
         mainSocket_.receive(packet);
         int circles_num=0;
@@ -162,7 +389,7 @@ void GameScenario::setUpNetwork(NetworkType newNetType) {
         }
 
     }
-
+    this->removeMenu();
 }
 
 void GameScenario::startNew() {
@@ -191,12 +418,14 @@ GameScenario::~GameScenario() {
 }
 
 void GameScenario::update(float time) {
-    if (netType_ == NetworkType::OFFLINE)         {
-        updateForOffline(time);
-    } else if (netType_ == NetworkType::SERVER) {
-        updateForServer(time);
-    } else {
-        updateForClient(time);
+    if (!isMenu_) {
+        if (netType_ == NetworkType::OFFLINE) {
+            updateForOffline(time);
+        } else if (netType_ == NetworkType::SERVER) {
+            updateForServer(time);
+        } else {
+            updateForClient(time);
+        }
     }
 }
 
@@ -207,22 +436,22 @@ void GameScenario::updateForOffline(float time) {
         if (out != 'i') {
             sf::Vector2f newPosition = circles_[i]->getPosition();
             if (out == 'l') {
-                newPosition.x += 1.f;
+                newPosition.x += circles_[i]->getSpeed()*time / 1000.f;
                 circles_[i]->setPosition(newPosition);
                 circles_[i]->setToGoPoint(newPosition);
             }
             if (out == 'r') {
-                newPosition.x -= 1.f;
+                newPosition.x -= circles_[i]->getSpeed()*time / 1000.f;
                 circles_[i]->setPosition(newPosition);
                 circles_[i]->setToGoPoint(newPosition);
             }
             if (out == 'u') {
-                newPosition.y += 1.f;
+                newPosition.y += circles_[i]->getSpeed()*time / 1000.f;
                 circles_[i]->setPosition(newPosition);
                 circles_[i]->setToGoPoint(newPosition);
             }
             if (out == 'l') {
-                newPosition.y -= 1.f;
+                newPosition.y -= circles_[i]->getSpeed()*time / 1000.f;
                 circles_[i]->setPosition(newPosition);
                 circles_[i]->setToGoPoint(newPosition);
             }
@@ -294,22 +523,22 @@ void GameScenario::updateForClient(float time) {
             if (out != 'i') {
                 sf::Vector2f newPosition = circles_[i]->getPosition();
                 if (out == 'l') {
-                    newPosition.x += 1.f;
+                    newPosition.x += circles_[i]->getSpeed()*time / 1000.f;
                     circles_[i]->setPosition(newPosition);
                     circles_[i]->setToGoPoint(newPosition);
                 }
                 if (out == 'r') {
-                    newPosition.x -= 1.f;
+                    newPosition.x -= circles_[i]->getSpeed()*time / 1000.f;
                     circles_[i]->setPosition(newPosition);
                     circles_[i]->setToGoPoint(newPosition);
                 }
                 if (out == 'u') {
-                    newPosition.y += 1.f;
+                    newPosition.y += circles_[i]->getSpeed()*time / 1000.f;
                     circles_[i]->setPosition(newPosition);
                     circles_[i]->setToGoPoint(newPosition);
                 }
                 if (out == 'l') {
-                    newPosition.y -= 1.f;
+                    newPosition.y -= circles_[i]->getSpeed()*time / 1000.f;
                     circles_[i]->setPosition(newPosition);
                     circles_[i]->setToGoPoint(newPosition);
                 }

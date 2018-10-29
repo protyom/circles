@@ -147,7 +147,7 @@ float Circle::getSpeed() const {
 }
 
 void Circle::injure() {
-    rad_ -= 0.5f;
+    rad_ -= 1.f;
     cs_.setRadius(rad_);
     if (rad_ > 100.0f) {
         setSpeed(baseSpeed_*baseRad_ / rad_);

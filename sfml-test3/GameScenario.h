@@ -6,6 +6,7 @@
 #include "Bounds.h"
 #include "Background.h"
 #include <SFML\Network.hpp>
+#include <TGUI\TGUI.hpp>
 
 enum NetworkType {
     OFFLINE,
@@ -24,12 +25,18 @@ private:
     Bounds gameBounds_;
     Background back_;
 
+    tgui::Gui gui_;
     NetworkType netType_;
     sf::TcpSocket mainSocket_;
     vector<  sf::TcpSocket* >  sockets_;
+    sf::TcpListener listener;
     int numberOfPlayers;
+    int circlesNum;
+    int coinsNum;
 
     const float MAX_RAD = 500.f;
+
+    bool isMenu_;
     bool endGame;
 public:
     GameScenario(sf::RenderWindow*, const string&, const string&,const string&);
@@ -41,7 +48,19 @@ public:
     void draw();
     
     bool getEndGame()const;
+
+    void handleEvent(sf::Event& event);
+    void handleMenu(tgui::Button::Ptr but);
+    void handleClientMenu(tgui::Button::Ptr but, tgui::Label::Ptr label, tgui::EditBox::Ptr editBox);
+    void handleServerMenu(tgui::Button::Ptr but, tgui::Label::Ptr label);
+
+    void loadClientMenu();
+    void loadMainMenu();
+    void loadMultiplayerMenu();
+    void loadServerMenu();
     
+    void removeMenu();
+
     void setUpNetwork(NetworkType newNetType);
     void startNew();
 
