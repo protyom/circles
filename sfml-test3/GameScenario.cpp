@@ -49,14 +49,15 @@ void GameScenario::addNewCoin(const int& num = 1) {
 
 void GameScenario::draw() {
     back_.draw();
-    if (!isMenu_) {
-        for (int i = 0; i < coins_.size(); i++) {
-            coins_[i]->draw();
-        }
+    for (int i = 0; i < coins_.size(); i++) {
+        coins_[i]->draw();
+    }
 
-        for (int i = 0; i < circles_.size(); i++) {
-            circles_[i]->draw();
-        }
+    for (int i = 0; i < circles_.size(); i++) {
+        circles_[i]->draw();
+    }
+    if (!isMenu_) {
+
 
         gameBounds_.draw();
     } else {
@@ -127,6 +128,12 @@ void GameScenario::handleServerMenu(tgui::Button::Ptr but, tgui::Label::Ptr labe
     }
 }
 
+void GameScenario::handleReplayMenu() {
+    this->startNew();
+    this->removeMenu();
+    this->loadMainMenu();
+}
+
 void GameScenario::loadClientMenu() {
     isMenu_ = true;
     auto label = tgui::Label::create("Enter IP-Adress");
@@ -176,6 +183,9 @@ void GameScenario::loadClientMenu() {
 
 void GameScenario::loadMainMenu() {
     isMenu_ = true;
+
+
+
     auto button1 = tgui::Button::create("Offline");
     button1->setSize({ "16.67%", "10%"  });
     button1->setPosition({ "10%", "20%" });
@@ -198,7 +208,8 @@ void GameScenario::loadMainMenu() {
     button2->setTextSize(40);
     gui_.add(button2);
 
-    
+
+
     button1->connect("pressed", &GameScenario::handleMenu, this, button1);
     button2->connect("pressed", &GameScenario::handleMenu, this, button2);
 }
@@ -293,6 +304,42 @@ void GameScenario::loadServerMenu() {
     button4->connect("pressed", &GameScenario::handleServerMenu, this, button4, label);
 }
 
+void GameScenario::loadReplayMenu(playState ps) {
+    isMenu_ = true;
+    auto blur = tgui::Label::create("");
+    blur->setSize({ "100%","100%" });
+    blur->getRenderer()->setBackgroundColor(tgui::Color(92, 92, 92, 255));
+    blur->getRenderer()->setOpacity(0.5f);
+    gui_.add(blur);
+
+    auto label = tgui::Label::create("Replay?");
+    label->setSize({ "66.67%", "12.5%" });
+    label->setPosition({ "40%", "40%" });
+    label->getRenderer()->setFont("resources/PlayfairDisplay-Regular.ttf");
+    label->getRenderer()->setTextColor(tgui::Color(255, 255, 255, 255));
+    label->getRenderer()->setBackgroundColor(tgui::Color(21, 21, 21, 0));
+    label->setTextSize(40);
+    gui_.add(label);
+    if (ps == playState::lost) {
+        label->setText("You lost. Replay?");
+
+    } else {
+        label->setText("You won. Replay?");
+    }
+
+    auto button3 = tgui::Button::create("Replay");
+    button3->setSize({ "16.67%", "10%" });
+    button3->setPosition({ "40%", "60%" });
+    button3->getRenderer()->setFont("resources/PlayfairDisplay-Regular.ttf");
+    button3->getRenderer()->setTextColor(tgui::Color(255, 255, 255, 255));
+    button3->getRenderer()->setBackgroundColor(tgui::Color(21, 21, 21, 255));
+    button3->getRenderer()->setBackgroundColorHover(tgui::Color(255, 255, 255, 255));
+    button3->getRenderer()->setTextColorHover(tgui::Color(0, 0, 0, 255));
+    button3->setTextSize(40);
+    gui_.add(button3);
+    button3->connect("pressed", &GameScenario::handleReplayMenu, this);
+}
+
 void GameScenario::removeMenu() {
     gui_.removeAllWidgets();
     isMenu_ = false;
@@ -301,7 +348,6 @@ void GameScenario::removeMenu() {
 
 void GameScenario::setUpNetwork(NetworkType newNetType) {
     this->removeMenu();
-    startNew();
     netType_ = newNetType;
     if (netType_ == NetworkType::SERVER) {
         //sf::TcpListener listener;
@@ -395,6 +441,7 @@ void GameScenario::setUpNetwork(NetworkType newNetType) {
 }
 
 void GameScenario::startNew() {
+    endGame = false;
     for (int i = 0; i < coins_.size(); i++) {
         delete coins_[i];
     }
@@ -404,7 +451,9 @@ void GameScenario::startNew() {
     for (int i = 0; i < sockets_.size(); i++) {
         delete sockets_[i];
     }
-
+    coins_.clear();
+    circles_.clear();
+    sockets_.clear();
 }
 
 GameScenario::~GameScenario() {
@@ -504,12 +553,14 @@ void GameScenario::updateForOffline(float time) {
         }
     }
     if (lost == circles_.size() - 1 && circles_.size()>1 && circles_[0]->getPlayState() != playState::lost) {
-        cout << "Winner" << endl;
+
         endGame = true;
+        loadReplayMenu(playState::won);
     }
     if (circles_[0]->getPlayState() == playState::lost) {
-        cout << "Lost" << endl;
+
         endGame = true;
+        loadReplayMenu(playState::lost);
     }
     gameBounds_.update(time);
     back_.update(time);
@@ -577,12 +628,14 @@ void GameScenario::updateForClient(float time) {
         }
     }
     if (lost == circles_.size() - 1 && circles_.size()>1 && !isLost) {
-        cout << "Winner" << endl;
+
         endGame = true;
+        loadReplayMenu(playState::won);
     }
     if (isLost) {
-        cout << "Lost" << endl;
+
         endGame = true;
+        loadReplayMenu(playState::lost);
     }
     gameBounds_.update(time);
     back_.update(time);
@@ -702,12 +755,14 @@ void GameScenario::updateForServer(float time) {
         }
     }
     if (lost == circles_.size() - 1 && circles_.size()>1 && circles_[0]->getPlayState() != playState::lost) {
-        cout << "Winner" << endl;
+
         endGame = true;
+        loadReplayMenu(playState::won);
     }
     if (circles_[0]->getPlayState() == playState::lost) {
-        cout << "Lost" << endl;
+
         endGame = true;
+        loadReplayMenu(playState::lost);
     }
     gameBounds_.update(time);
     back_.update(time);

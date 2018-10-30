@@ -53,11 +53,13 @@ public:
     void handleMenu(tgui::Button::Ptr but);
     void handleClientMenu(tgui::Button::Ptr but, tgui::Label::Ptr label, tgui::EditBox::Ptr editBox);
     void handleServerMenu(tgui::Button::Ptr but, tgui::Label::Ptr label);
+    void handleReplayMenu();
 
     void loadClientMenu();
     void loadMainMenu();
     void loadMultiplayerMenu();
     void loadServerMenu();
+    void loadReplayMenu(playState ps);
     
     void removeMenu();
 

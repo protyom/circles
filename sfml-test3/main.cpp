@@ -87,7 +87,7 @@ int main()
             gs.handleEvent(event);
 		}
         window.clear();
-        if (!gs.getEndGame()) {
+        //if (!gs.getEndGame()) {
             float time;
             while ((time = static_cast<float>(clock.getElapsedTime().asMicroseconds())) == 0.f) {}
             clock.restart();
@@ -98,7 +98,7 @@ int main()
                 gs.update(time);
                 gs.draw();
             }
-        }
+        //}
 		window.display();
 	}
 
