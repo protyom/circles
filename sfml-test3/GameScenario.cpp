@@ -101,11 +101,12 @@ void GameScenario::handleClientMenu(tgui::Button::Ptr but,tgui::Label::Ptr label
         this->loadMultiplayerMenu();
     } else {
         sf::IpAddress serverIp(editBox->getText());
-        if (mainSocket_.connect(serverIp, 2000) != sf::Socket::Done) {
+        if (mainSocket_.connect(serverIp, 27015) != sf::Socket::Done) {
             label->setText("Wrong IP.Reconnect");
             return;
         }
         label->setText(sf::String("Connected to ")+ editBox->getText());
+        gui_.draw();
         setUpNetwork(NetworkType::CLIENT);
     }
 }
@@ -116,11 +117,11 @@ void GameScenario::handleServerMenu(tgui::Button::Ptr but, tgui::Label::Ptr labe
         this->removeMenu();
         this->loadMultiplayerMenu();
     } else if(str == "Search"){
-        listener.listen(2000);
+        listener.listen(27015);
         sf::TcpSocket* client = new sf::TcpSocket();
         sockets_.push_back(client);
         listener.accept(*client);
-        label->setText(sf::String(sockets_.size()) + sf::String(" users connected"));
+        label->setText(client->getRemoteAddress().toString() + sf::String(" users connected"));
     } else if (str == "Play!") {
         setUpNetwork(NetworkType::SERVER);
     }
@@ -289,7 +290,7 @@ void GameScenario::loadServerMenu() {
 
     button2->connect("pressed", &GameScenario::handleServerMenu, this, button2, label);
     button3->connect("pressed", &GameScenario::handleServerMenu, this, button3, label);
-    button4->connect("pressed", &GameScenario::handleServerMenu, this, button3, label);
+    button4->connect("pressed", &GameScenario::handleServerMenu, this, button4, label);
 }
 
 void GameScenario::removeMenu() {
@@ -299,11 +300,12 @@ void GameScenario::removeMenu() {
 
 
 void GameScenario::setUpNetwork(NetworkType newNetType) {
+    this->removeMenu();
     startNew();
     netType_ = newNetType;
     if (netType_ == NetworkType::SERVER) {
         //sf::TcpListener listener;
-        //listener.listen(2000);
+        //listener.listen(27015);
         sf::Packet packet;
         /*cout << "Your IP adress is: " << sf::IpAddress::getLocalAddress() << endl;
         cout << "Waiting for clients" << endl;
@@ -389,7 +391,7 @@ void GameScenario::setUpNetwork(NetworkType newNetType) {
         }
 
     }
-    this->removeMenu();
+
 }
 
 void GameScenario::startNew() {
